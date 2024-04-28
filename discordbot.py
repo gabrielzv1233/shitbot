@@ -7,6 +7,7 @@ import os
 if not os.path.isfile(".env"):
     with open(".env", "w") as file:
         file.write("TOKEN=Your_Bot_Token_here\n")
+    exit("please add your discord token to .env")
 
 from dotenv import load_dotenv
 load_dotenv()
