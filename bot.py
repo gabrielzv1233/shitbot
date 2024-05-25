@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 
-TOKEN = "Token"
+TOKEN = "MTI0Mzc3MzUyNDc2MjU2MjYzMQ.GG3Frn.xPuMsF7JePv0QvaWSKM021gJLmNoHOotCpkmZk"
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -41,8 +41,8 @@ async def send_customize_request(interaction: discord.Interaction, bot_name: str
 @bot.tree.command(name="help", description="Need help? No problem, this command is here for you!")
 async def show_help(interaction: discord.Interaction):
     embed = discord.Embed(title="Bot Commands", description="Here are all the available commands and their usage:", color=discord.Color.blurple())
-    embed.add_field(name="/customize [bot_name] [bot_icon]", value="Personalize this Discord bot with a new name and/or icon.", inline=False)
-    embed.add_field(name="/roast", value="Randomly roast a specified user", inline=False)
+    embed.add_field(name="/customize", value="Change the displayname or icon of this bot.", inline=False)
+    embed.add_field(name="/roast", value="Randomly roast a specified user.", inline=False)
     embed.add_field(name="/purge", value="Purge the channel.", inline=False)
     embed.add_field(name="/help", value="Show available commands and their usage.", inline=False)
     await interaction.response.send_message(embed=embed)
