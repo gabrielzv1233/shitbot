@@ -10,12 +10,24 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
+    print(f"Watching {len(bot.guilds)} servers")
     print(f"Running as {bot.user.name}")
     try:
         synced = await bot.tree.sync()
         print(f"synced {len(synced)} command(s)")
     except Exception as e:
         print(e)
+
+@bot.event
+async def on_guild_join(guild: discord.Guild):
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
+    print(f"Bot added to {guild.id}, Now watching {len(bot.guilds)} servers")
+    
+@bot.event
+async def on_guild_remove(guild: discord.Guild):
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
+    print(f"Bot removed from {guild.id}, Now watching {len(bot.guilds)} servers")
 
 async def fetch_image(url: str):
     async with bot.http._HTTPClient__session.get(url) as response:
