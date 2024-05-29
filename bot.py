@@ -18,6 +18,15 @@ async def on_ready():
         print(f"synced {len(synced)} command(s)")
     except Exception as e:
         print(e)
+        
+@bot.tree.command(name="sync", description="Resync slash commands")
+@app_commands.default_permissions(administrator=True)
+async def sync(interaction: discord.Interaction):
+    try:
+        synced = await bot.tree.sync()
+        await interaction.response.send_message(f"synced {len(synced)} command(s)")
+    except Exception as e:
+        await interaction.response.send_message(e)
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
@@ -30,6 +39,7 @@ async def on_guild_remove(guild: discord.Guild):
     print(f"Bot removed from {guild.id}, Now watching {len(bot.guilds)} servers")
 
 @bot.tree.command(name="customize", description="Personalize this Discord bot to cater to your needs!")
+@app_commands.default_permissions(administrator=True)
 @app_commands.describe(bot_name="The new name for the bot (optional)",)
 async def send_customize_request(interaction: discord.Interaction, bot_name: str = "Shitbot"):
     guild = interaction.guild
@@ -43,12 +53,14 @@ async def send_customize_request(interaction: discord.Interaction, bot_name: str
     except Exception as e:
         await interaction.response.send_message(f"Failed to customize bot: {e}")
 
-@bot.tree.command(name="help", description="Need help? No problem, this command is here for you!")
+@bot.tree.command(name="help", description="List of commands and their usage.")
 async def show_help(interaction: discord.Interaction):
     embed = discord.Embed(title="Bot Commands", description="Here are all the available commands and their usage:", color=discord.Color.blurple())
-    embed.add_field(name="/customize", value="Change the displayname of this bot.", inline=False)
+    if interaction.user.guild_permissions.administrator:
+        embed.add_field(name="/customize", value="Change the displayname of this bot.", inline=False)
     embed.add_field(name="/roast", value="Randomly roast a specified user.", inline=False)
-    embed.add_field(name="/purge", value="Purge the channel.", inline=False)
+    if interaction.user.guild_permissions.manage_messages:
+        embed.add_field(name="/purge", value="Purge the channel.", inline=False)
     embed.add_field(name="/help", value="Show available commands and their usage.", inline=False)
     await interaction.response.send_message(embed=embed)
 
@@ -101,6 +113,7 @@ I may be drunk, {person_to_roast}, but in the morning I will be sober and you wi
 
 @commands.cooldown(1, 5, commands.BucketType.user)
 @bot.tree.command(name="purge", description="Purges messages from the channel.")
+@app_commands.default_permissions(manage_messages=True)
 @app_commands.describe(limit="How many messages to purge, -1 for all")
 async def say(interaction: discord.Interaction, limit: int):
     if interaction.user.guild_permissions.manage_messages:
