@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 
-TOKEN = "Token"
+TOKEN = "Bot Token"
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -12,48 +12,35 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
     print(f"Watching {len(bot.guilds)} servers")
-    print(f"Running as {bot.user.name}")
-    try:
-        synced = await bot.tree.sync()
-        print(f"synced {len(synced)} command(s)")
-    except Exception as e:
-        print(e)
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
     print(f"Bot added to {guild.id}, Now watching {len(bot.guilds)} servers")
-    
+
 @bot.event
 async def on_guild_remove(guild: discord.Guild):
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
     print(f"Bot removed from {guild.id}, Now watching {len(bot.guilds)} servers")
 
-async def fetch_image(url: str):
-    async with bot.http._HTTPClient__session.get(url) as response:
-        return await response.read()
-
 @bot.tree.command(name="customize", description="Personalize this Discord bot to cater to your needs!")
-@app_commands.describe(
-    bot_name="The new name for the bot (optional)",
-    bot_icon="URL to the new icon for the bot (optional)"
-)
-async def send_customize_request(interaction: discord.Interaction, bot_name: str = None, bot_icon: str = None):
+@app_commands.describe(bot_name="The new name for the bot (optional)",)
+async def send_customize_request(interaction: discord.Interaction, bot_name: str = "Shitbot"):
+    guild = interaction.guild
     try:
         if bot_name:
-            await bot.user.edit(username=bot_name)
-        if bot_icon:
-            avatar_data = await fetch_image(bot_icon)
-            await bot.user.edit(avatar=avatar_data)
-        await interaction.response.send_message("Bot customization successful!", ephemeral=True)
+            if interaction.user.guild_permissions.administrator:
+               await guild.me.edit(nick=bot_name)
+               await interaction.response.send_message("Bot customization successful!")
+            else:
+                await interaction.response.send_message("You do not have permission to customize the bot.", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"Failed to customize bot: {e}", ephemeral=True)
-
+        await interaction.response.send_message(f"Failed to customize bot: {e}")
 
 @bot.tree.command(name="help", description="Need help? No problem, this command is here for you!")
 async def show_help(interaction: discord.Interaction):
     embed = discord.Embed(title="Bot Commands", description="Here are all the available commands and their usage:", color=discord.Color.blurple())
-    embed.add_field(name="/customize", value="Change the displayname or icon of this bot.", inline=False)
+    embed.add_field(name="/customize", value="Change the displayname of this bot.", inline=False)
     embed.add_field(name="/roast", value="Randomly roast a specified user.", inline=False)
     embed.add_field(name="/purge", value="Purge the channel.", inline=False)
     embed.add_field(name="/help", value="Show available commands and their usage.", inline=False)
