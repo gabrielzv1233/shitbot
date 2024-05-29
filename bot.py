@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import random
 
-TOKEN = "Bot Token"
+TOKEN = "Token"
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -12,6 +12,12 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
     print(f"Watching {len(bot.guilds)} servers")
+    print(f"Running as {bot.user.name}")
+    try:
+        synced = await bot.tree.sync()
+        print(f"synced {len(synced)} command(s)")
+    except Exception as e:
+        print(e)
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
